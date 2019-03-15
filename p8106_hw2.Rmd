@@ -9,10 +9,34 @@ output: github_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+###Import data
 ```{r}
+library(tidyverse)
+concrete = read_csv("Data/concrete.csv") %>%
+  janitor::clean_names()
 
 ```
+
 ###(a) Create scatter plots of response vs. predictors using the function featurePlot().
+```{r, fig.height=5}
+library(caret)
+
+# matrix of predictors 
+x <- model.matrix(compressive_strength~.,concrete)[,-1]
+# vector of response
+y <- concrete$compressive_strength
+
+theme1 <- trellis.par.get()
+theme1$plot.symbol$col <- rgb(.2, .4, .2, .5)
+theme1$plot.symbol$pch <- 16
+theme1$plot.line$col <- rgb(.8, .1, .1, 1)
+theme1$plot.line$lwd <- 2
+theme1$strip.background$col <- rgb(.0, .2, .6, .2)
+trellis.par.set(theme1)
+featurePlot(x, y, plot = "scatter", labels = c("","compressive strength"),
+            type = c("p"), layout = c(4, 2))
+```
+
 
 ###(b) Perform polynomial regression to predict compressive strength using water as the
 predictor. For 1 ≤ d ≤ 4, use cross-validation to select the optimal degree d for
