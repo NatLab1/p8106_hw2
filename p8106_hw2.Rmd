@@ -37,12 +37,24 @@ featurePlot(x, y, plot = "scatter", labels = c("","compressive strength"),
             type = c("p"), layout = c(4, 2))
 ```
 
-
 ###(b) Perform polynomial regression to predict compressive strength using water as the
 predictor. For 1 ≤ d ≤ 4, use cross-validation to select the optimal degree d for
 the polynomial. What degree was chosen, and how does this compare to the results
 of hypothesis testing using ANOVA? Make a plot of different polynomial fits to the
 data.
+```{r}
+fit1 <- lm(compressive_strength~water, data = concrete) #1st degree
+fit2 <- lm(compressive_strength~poly(water,2), data = concrete) #squared
+fit3 <- lm(compressive_strength~poly(water,3), data = concrete) #cubed
+fit4 <- lm(compressive_strength~poly(water,4), data = concrete) #4th power
+
+anova(fit1,fit2,fit3,fit4) 
+
+plot2 <- ggplot(data = concrete, aes(x = water, y = compressive_strength)) +
+     geom_point(color = rgb(.2, .4, .2, .5)) + 
+    geom_line(aes(x=water, y=fit2))
+
+```
 
 ###(c) Fit a smoothing spline using water as the predictor for a range of degrees of
 freedom, as well as the degree of freedom obtained by generalized cross-validation,
