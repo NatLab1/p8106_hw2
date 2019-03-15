@@ -1,0 +1,28 @@
+---
+title: "P8106_hw2"
+author: "Nathalie Fadel"
+date: "3/15/2019"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+
+```
+###(a) Create scatter plots of response vs. predictors using the function featurePlot().
+
+###(b) Perform polynomial regression to predict compressive strength using water as the
+predictor. For 1 ≤ d ≤ 4, use cross-validation to select the optimal degree d for
+the polynomial. What degree was chosen, and how does this compare to the results
+of hypothesis testing using ANOVA? Make a plot of different polynomial fits to the
+data.
+
+###(c) Fit a smoothing spline using water as the predictor for a range of degrees of
+freedom, as well as the degree of freedom obtained by generalized cross-validation,
+and plot the resulting fits. Describe the results obtained.
+
+###(d) Fit a GAM using all the predictors. Plot the results and explain your findings.
+
