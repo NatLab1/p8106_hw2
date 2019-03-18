@@ -116,5 +116,19 @@ smooth_fits
 
 ###(d) Fit a GAM using all the predictors. Plot the results and explain your findings.
 ```{r}
+library(mgcv)
+
+gam.m1 <- gam(compressive_strength ~ cement + blast_furnace_slag + fly_ash + water + superplasticizer + coarse_aggregate + fine_aggregate + age, data = concrete)
+gam.m2 <- gam(compressive_strength ~ cement + blast_furnace_slag + fly_ash + s(water) + superplasticizer + coarse_aggregate + fine_aggregate + age, data = concrete)
+
+anova(gam.m1, gam.m2, test = "F")
+
+plot(gam.m2)
+
+vis.gam(gam.m2, view = c("water", "fly_ash"), 
+        plot.type = "contour", color = "topo")
+
+vis.gam(gam.m2, view = c("fine_aggregate","coarse_aggregate"), 
+        plot.type = "contour", color = "topo")
 
 ```
