@@ -50,15 +50,41 @@ fit4 <- lm(compressive_strength~poly(water,4), data = concrete) #4th power
 
 anova(fit1,fit2,fit3,fit4) 
 
-plot2 <- ggplot(data = concrete, aes(x = water, y = compressive_strength)) +
-     geom_point(color = rgb(.2, .4, .2, .5)) + 
-    geom_line(aes(x=water, y=fit2))
+plot1 <- ggplot(data = concrete, aes(x = water, y = compressive_strength)) +
+     geom_point(color = rgb(.2, .4, .2, .5))
+plot1
+
+plot(fit1) + 
+plot(fit2) + 
+plot(fit3) +
+plot(fit4) 
 
 ```
 
 ###(c) Fit a smoothing spline using water as the predictor for a range of degrees of
 freedom, as well as the degree of freedom obtained by generalized cross-validation,
 and plot the resulting fits. Describe the results obtained.
+```{r}
+library(splines)
+
+#Generating Test Data
+waterlims <- range(concrete$water)
+water.grid <- seq(from=waterlims[1], to = waterlims[2])
+
+fit.ss <- smooth.spline(concrete$water, concrete$compressive_strength)
+fit.ss
+
+pred.ss <- predict(fit.ss, x = water.grid)
+
+pred.ss.df <- data.frame(pred = pred.ss$y, water = water.grid)
+
+plot1 +
+geom_line(aes(x = water, y = pred), data = pred.ss.df,
+          color = rgb(.8, .1, .1, 1)) + theme_bw()
+
+```
 
 ###(d) Fit a GAM using all the predictors. Plot the results and explain your findings.
+```{r}
 
+```
