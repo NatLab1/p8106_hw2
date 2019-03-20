@@ -113,7 +113,11 @@ pred.ss.df <- data.frame(pred = pred.ss$y, water = water.grid)
 
 
 #plot of fits
-smooth_fits <- plot1 + geom_line(aes(x = water, y = pred), data = pred.ss.df1,
+scatter <- ggplot(data = concrete, aes(x = water, y = compressive_strength)) +
+  geom_point(color = rgb(.2, .4, .2, .5))
+
+smooth_fits <- scatter + 
+  geom_line(aes(x = water, y = pred), data = pred.ss.df1,
           color = rgb(.8, .1, .1, 1)) + 
   geom_line(aes(x = water, y = pred), data = pred.ss.df2,
           color = rgb(0, 0, 1, 1)) + 
