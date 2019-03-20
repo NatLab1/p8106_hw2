@@ -2,7 +2,7 @@
 title: "P8106_hw2"
 author: "Nathalie Fadel"
 date: "3/15/2019"
-output: github_document
+output: html_document
 ---
 
 ```{r setup, include=FALSE}
@@ -37,12 +37,13 @@ featurePlot(x, y, plot = "scatter", labels = c("","compressive strength"),
             type = c("p"), layout = c(4, 2))
 ```
 
-###(b) Perform polynomial regression to predict compressive strength using water as the
-predictor. For 1 ≤ d ≤ 4, use cross-validation to select the optimal degree d for
-the polynomial. What degree was chosen, and how does this compare to the results
-of hypothesis testing using ANOVA? Make a plot of different polynomial fits to the
-data.
+###(b) Perform polynomial regression to predict compressive strength using water as the predictor. For 1 ≤ d ≤ 4, use cross-validation to select the optimal degree d for the polynomial. What degree was chosen, and how does this compare to the results of hypothesis testing using ANOVA? Make a plot of different polynomial fits to the data.
 ```{r}
+library(glmnet)
+library(ISLR)
+library(mgcv)
+library(boot)
+
 fit1 <- lm(compressive_strength~water, data = concrete) #1st degree
 fit2 <- lm(compressive_strength~poly(water,2), data = concrete) #squared
 fit3 <- lm(compressive_strength~poly(water,3), data = concrete) #cubed
@@ -50,20 +51,35 @@ fit4 <- lm(compressive_strength~poly(water,4), data = concrete) #4th power
 
 anova(fit1,fit2,fit3,fit4) 
 
-plot1 <- ggplot(data = concrete, aes(x = water, y = compressive_strength)) +
-     geom_point(color = rgb(.2, .4, .2, .5))
-plot1
+#finding optimal exponent  
+set.seed(1)
+mseK <- rep(NA, 4)
+for (i in 1:4) {
+    fit <- glm(compressive_strength ~ poly(water, i), data = concrete)
+    mseK[i] <- cv.glm(concrete, fit, K = 10)$delta[1]
+}
+plot(1:4, mseK, xlab = "Exponent", ylab = "Test MSE", type = "l")
 
-plot(fit1) + 
-plot(fit2) + 
-plot(fit3) +
-plot(fit4) 
+
+#scatter plot with fit lines  
+plot(compressive_strength ~ water, data = concrete, col = "blue")
+
+waterlims <- range(concrete$water)
+water.grid <- seq(from = waterlims[1], to = waterlims[2], by = 1)
+
+preds1 <- predict(fit1, newdata = data.frame(water = water.grid))
+preds2 <- predict(fit2, newdata = data.frame(water = water.grid))
+preds3 <- predict(fit3, newdata = data.frame(water = water.grid))
+preds4 <- predict(fit4, newdata = data.frame(water = water.grid))
+
+lines(water.grid, preds1, col = "red", lwd = 2)
+lines(water.grid, preds2, col = "purple", lwd = 2)
+lines(water.grid, preds3, col = "green", lwd = 2)
+lines(water.grid, preds4, col = "brown", lwd = 2)
 
 ```
 
-###(c) Fit a smoothing spline using water as the predictor for a range of degrees of
-freedom, as well as the degree of freedom obtained by generalized cross-validation,
-and plot the resulting fits. Describe the results obtained.
+###(c) Fit a smoothing spline using water as the predictor for a range of degrees of freedom, as well as the degree of freedom obtained by generalized cross-validation, and plot the resulting fits. Describe the results obtained.
 ```{r}
 library(splines)
 
@@ -74,28 +90,24 @@ water.grid <- seq(from=waterlims[1], to = waterlims[2])
 #fit 1
 fit.ss1 <- smooth.spline(concrete$water, concrete$compressive_strength, df = 50)
 fit.ss1
-
 pred.ss1 <- predict(fit.ss1, x = water.grid)
 pred.ss.df1 <- data.frame(pred = pred.ss1$y, water = water.grid)
 
 #fit 2
 fit.ss2 <- smooth.spline(concrete$water, concrete$compressive_strength, df = 60)
 fit.ss2
-
 pred.ss2 <- predict(fit.ss2, x = water.grid)
 pred.ss.df2 <- data.frame(pred = pred.ss2$y, water = water.grid)
 
 #fit 3
 fit.ss3 <- smooth.spline(concrete$water, concrete$compressive_strength, df = 70)
 fit.ss3
-
 pred.ss3 <- predict(fit.ss3, x = water.grid)
 pred.ss.df3 <- data.frame(pred = pred.ss3$y, water = water.grid)
 
 #cv fit
 fit.ss <- smooth.spline(concrete$water, concrete$compressive_strength)
 fit.ss
-
 pred.ss <- predict(fit.ss, x = water.grid)
 pred.ss.df <- data.frame(pred = pred.ss$y, water = water.grid)
 
@@ -116,19 +128,10 @@ smooth_fits
 
 ###(d) Fit a GAM using all the predictors. Plot the results and explain your findings.
 ```{r}
-library(mgcv)
-
 gam.m1 <- gam(compressive_strength ~ cement + blast_furnace_slag + fly_ash + water + superplasticizer + coarse_aggregate + fine_aggregate + age, data = concrete)
-gam.m2 <- gam(compressive_strength ~ cement + blast_furnace_slag + fly_ash + s(water) + superplasticizer + coarse_aggregate + fine_aggregate + age, data = concrete)
-
-anova(gam.m1, gam.m2, test = "F")
+gam.m2 <- gam(compressive_strength ~ cement + blast_furnace_slag + fly_ash + s(water) + superplasticizer + coarse_aggregate + fine_aggregate + s(age), data = concrete)
 
 plot(gam.m2)
 
-vis.gam(gam.m2, view = c("water", "fly_ash"), 
-        plot.type = "contour", color = "topo")
-
-vis.gam(gam.m2, view = c("fine_aggregate","coarse_aggregate"), 
-        plot.type = "contour", color = "topo")
-
+anova(gam.m1, gam.m2, test = "F")
 ```
