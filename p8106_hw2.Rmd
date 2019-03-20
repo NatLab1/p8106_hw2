@@ -76,8 +76,8 @@ lines(water.grid, preds1, col = "red", lwd = 2)
 lines(water.grid, preds2, col = "purple", lwd = 2)
 lines(water.grid, preds3, col = "green", lwd = 2)
 lines(water.grid, preds4, col = "brown", lwd = 2)
-
-```
+```  
+A degree 4 polynomial is the best fit for the data, according to both the ANOVA test and the 10-fold cross-validation.
 
 ###(c) Fit a smoothing spline using water as the predictor for a range of degrees of freedom, as well as the degree of freedom obtained by generalized cross-validation, and plot the resulting fits. Describe the results obtained.
 ```{r}
@@ -88,19 +88,19 @@ waterlims <- range(concrete$water)
 water.grid <- seq(from=waterlims[1], to = waterlims[2])
 
 #fit 1
-fit.ss1 <- smooth.spline(concrete$water, concrete$compressive_strength, df = 50)
+fit.ss1 <- smooth.spline(concrete$water, concrete$compressive_strength, df = 10)
 fit.ss1
 pred.ss1 <- predict(fit.ss1, x = water.grid)
 pred.ss.df1 <- data.frame(pred = pred.ss1$y, water = water.grid)
 
 #fit 2
-fit.ss2 <- smooth.spline(concrete$water, concrete$compressive_strength, df = 60)
+fit.ss2 <- smooth.spline(concrete$water, concrete$compressive_strength, df = 30)
 fit.ss2
 pred.ss2 <- predict(fit.ss2, x = water.grid)
 pred.ss.df2 <- data.frame(pred = pred.ss2$y, water = water.grid)
 
 #fit 3
-fit.ss3 <- smooth.spline(concrete$water, concrete$compressive_strength, df = 70)
+fit.ss3 <- smooth.spline(concrete$water, concrete$compressive_strength, df = 50)
 fit.ss3
 pred.ss3 <- predict(fit.ss3, x = water.grid)
 pred.ss.df3 <- data.frame(pred = pred.ss3$y, water = water.grid)
@@ -125,6 +125,7 @@ smooth_fits <- plot1 + geom_line(aes(x = water, y = pred), data = pred.ss.df1,
 
 smooth_fits
 ```
+The degrees of freedom obtained by cross-validation is approximately 69. The best fit line using this df value has many local maxima and minima, and is subject to more local variation. With a low df, the fit line is smoother, but it may not capture local variation as well.  
 
 ###(d) Fit a GAM using all the predictors. Plot the results and explain your findings.
 ```{r}
@@ -134,4 +135,5 @@ gam.m2 <- gam(compressive_strength ~ cement + blast_furnace_slag + fly_ash + s(w
 plot(gam.m2)
 
 anova(gam.m1, gam.m2, test = "F")
-```
+```  
+In the model, we have added age as a smoothing term, in addition to water. For the graphs, age shows very low standard error around 0 but higher SE as age increases. For water, there is fairly low SE throughout, and is fairly limited to the ends of the graph. The ANOVA test shows that the model with age and water as smoothing terms is significantly different than the simple GAM with no smoothing. 
